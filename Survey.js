@@ -1,4 +1,17 @@
 //This file constains the server code for the Health App
+var knex = require('knex')({
+    client: 'mysql',
+    connection: {
+        host     : 'localhost',
+        user     : 'root',
+        password : 'bazzinga',
+        database : 'HealthApp',
+        charset  : 'utf8'
+  }
+});
+
+var Bookshelf = require('bookshelf')(knex);
+
 var _ = require('lodash');
 var express = require('express');
 var app = express();
