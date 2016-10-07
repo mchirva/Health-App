@@ -90,9 +90,9 @@ router.route('/users')
     .fetch()
     .then(function (user){
       if (!user) {
-        res.json({error: true, data: {message: "Inavlid user credentials"}});
+        res.json({error: true, data: {message: "Invalid user credentials"}});
       }else {
-        var token = jswt.sign(user, JWTKEY, {
+        var token = jwt.sign(user, JWTKEY, {
           expiresInMinutes: 30 //The token expries in 30 minutes
         });
         res.json({error: false, date: {user: user.toJSON(), token: token}});
