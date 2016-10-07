@@ -3,6 +3,7 @@ var Schema = {
   users: {
     id: {type: 'increments', nullable: false, primary: true},
     username: {type: 'string', maxlength: 254, nullable: false, unique: true},
+    role: {type: 'string', maxlength: 5, nullable: false},
     password: {type: 'string', maxlength: 150, nullable: false}
   },
   questions: {
@@ -12,11 +13,14 @@ var Schema = {
   },
   answers: {
     id: {type: 'increments', nullable: false, primary: true},
-    user_id: {type: 'integer', nullable: false, unsigned: true},
-    question_id: {type: 'integer', nullable: false, unsigned: true},
     answer: {type: 'string', maxlength: 150, nullable: false},
     sub_answer: {type: 'string', maxlength: 150, nullable: false},
     created_at: {type: 'dateTime', nullable: false}
+  },
+  user_responses: {
+    answer_id: {type: 'integer', nullable: false, unsigned: true},
+    user_id: {type: 'integer', nullable: false, unsigned: true},
+    question_id: {type: 'integer', nullable: false, unsigned: true},
   }
 };
 module.exports = Schema;

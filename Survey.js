@@ -35,12 +35,19 @@ var Question = Bookshelf.Model.extend({
 
 var Answer = Bookshelf.Model.extend({
   tableName: 'answers',
-  hasTimestamps: true,
+  hasTimestamps: true
+});
+
+var UserResponse = Bookshelf.Model.extend({
+  tableName: 'user_responses',
   user: function() {
     return this.belongsTo(User, "user_id");
   },
   question: function() {
     return this.belongsTo(Question, 'question_id');
+  },
+  answer: function() {
+    return this.belongsTo(Answer, 'answer_id');
   }
 });
 
@@ -54,6 +61,10 @@ var Questions = Bookshelf.Collection.extend({
 
 var Answers = Bookshelf.Collection.extend({
   model: Answer
+});
+
+var UserResponses = Bookshelf.collection.extend({
+  model: UserResponse
 });
 
 router.route('/users')
