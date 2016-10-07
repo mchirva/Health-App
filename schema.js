@@ -3,7 +3,7 @@ var Schema = {
   users: {
     id: {type: 'increments', nullable: false, primary: true},
     username: {type: 'string', maxlength: 254, nullable: false, unique: true},
-    role: {type: 'string', maxlength: 5, nullable: false},
+    role: {type: 'string', maxlength: 10, nullable: false},
     password: {type: 'string', maxlength: 150, nullable: false}
   },
   questions: {
