@@ -63,7 +63,7 @@ var Answers = Bookshelf.Collection.extend({
   model: Answer
 });
 
-var UserResponses = Bookshelf.collection.extend({
+var UserResponses = Bookshelf.Collection.extend({
   model: UserResponse
 });
 
