@@ -16,6 +16,8 @@ var _ = require('lodash');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var jwt    = require('jsonwebtoken');
+var JWTKEY = 'FalconDecoder'; // Key for Json Web Token
 
 // application routing
 var router = express.Router();
@@ -74,6 +76,27 @@ router.route('/users')
     .fetch()
     .then(function (collection) {
       res.json({error: false, data: collection.toJSON()});
+    })
+    .catch(function (err) {
+      res.status(500).json({error: true, data: {message: err.message}});
+    });
+  })
+
+  router.route('/login')
+  .post(function(req, res){
+    var username = req.body.username;
+    var password = req.body.password;
+    User.forge({username: username, password: password})
+    .fetch()
+    .then(function (user){
+      if (!user) {
+        res.json({error: true, data: {message: "Inavlid user credentials"}});
+      }else {
+        var token = jswt.sign(user, JWTKEY, {
+          expiresInMinutes: 30 //The token expries in 30 minutes
+        });
+        res.json({error: false, date: {user: user.toJSON(), token: token}});
+      }
     })
     .catch(function (err) {
       res.status(500).json({error: true, data: {message: err.message}});
