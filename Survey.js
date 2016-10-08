@@ -77,6 +77,7 @@ router.route('/createUser')
         User.forge({
             id: uuid.v1(),
             name: req.body.name,
+            gender: req.body.gender,
             username: req.body.username,
             password: req.body.password
             })
