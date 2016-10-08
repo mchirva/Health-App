@@ -5,14 +5,15 @@ var knex = require('knex')({
         host     : 'localhost',
         user     : 'root',
         password : 'bazzinga',
-        database : 'HealthApp',
+        database : 'healthappdb',
         charset  : 'utf8'
   }
 });
 
 var Bookshelf = require('bookshelf')(knex);
 
-var _ = require('lodash');
+var lodash_ = require('lodash');
+var uuid = require('uuid');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
@@ -37,20 +38,12 @@ var Question = Bookshelf.Model.extend({
 
 var Answer = Bookshelf.Model.extend({
   tableName: 'answers',
-  hasTimestamps: true
-});
-
-var UserResponse = Bookshelf.Model.extend({
-  tableName: 'user_responses',
-  user: function() {
-    return this.belongsTo(User, "user_id");
-  },
-  question: function() {
-    return this.belongsTo(Question, 'question_id');
-  },
-  answer: function() {
-    return this.belongsTo(Answer, 'answer_id');
-  }
+    user: function() {
+        return this.belongsTo(User, "UserId");
+    },
+    question: function() {
+        return this.belongsTo(Question, "QuestionId");
+    }
 });
 
 var Users = Bookshelf.Collection.extend({
@@ -65,24 +58,38 @@ var Answers = Bookshelf.Collection.extend({
   model: Answer
 });
 
-var UserResponses = Bookshelf.Collection.extend({
-  model: UserResponse
-});
 
-router.route('/users')
-//Fecth all users
+router.route('/getPatients')
+//Fecth all patients
 .get(function (req, res) {
-    Users.forge()
-    .fetch()
+    User.forge({role: 'Patient'})
+    .fetchAll()
     .then(function (collection) {
       res.json({error: false, data: collection.toJSON()});
     })
     .catch(function (err) {
       res.status(500).json({error: true, data: {message: err.message}});
     });
-  })
+  });
 
-  router.route('/login')
+router.route('/createUser')
+    .post(function (req, res) {
+        User.forge({
+            id: uuid.v1(),
+            name: req.body.name,
+            username: req.body.username,
+            password: req.body.password
+            })
+            .save(null, {method: 'insert'})
+            .then(function (user) {
+                res.json({error: false, data: {id: user.get('id')}});
+            })
+            .catch(function (err) {
+                res.status(500).json({error: true, data: {message: err.message}});
+            });
+    });
+
+router.route('/login')
   .post(function(req, res){
     var username = req.body.username;
     var password = req.body.password;
@@ -101,7 +108,78 @@ router.route('/users')
     .catch(function (err) {
       res.status(500).json({error: true, data: {message: err.message}});
     });
-  })
+  });
+
+router.route('/saveResponse')
+    .post(function (req, res) {
+        Answer.forge({
+            AnswerId: uuid.v1(),
+            userId: req.body.userId,
+            questionId: req.body.questionId,
+            answer: req.body.answer,
+            subQuestionAnswer: req.body.subQuestionAnswer
+            })
+            .save(null, {method: 'insert'})
+            .then(function (answer) {
+                res.json({error: false, data: {id: answer.get('AnswerId')}});
+            })
+            .catch(function (err) {
+                res.status(500).json({error: true, data: {message: err.message}});
+            });
+    });
+
+router.route('/calculateScore/:userId')
+    .get(function (req, res) {
+        Answer.forge({userId: req.params.userId})
+            .orderBy('questionId','ASC')
+            .fetchAll()
+            .then(function (answers) {
+                var medicationSum = 0;
+                var dietSum = 0;
+                var paSum = 0;
+                var smokingSum = 0;
+                var wmSum = 0;
+                var alcoholProduct = 0;
+                for(var i=0;i<3;i++){
+                    medicationSum = medicationSum + answers.models[i].attributes.Answer;
+                }
+                for(var i=3;i<14;i++){
+                    dietSum = dietSum + answers.models[i].attributes.Answer;
+                }
+                for(var i=14;i<16;i++){
+                    paSum = paSum + answers.models[i].attributes.Answer;
+                }
+                for(var i=18;i<20;i++){
+                    smokingSum = smokingSum + answers.models[i].attributes.Answer;
+                }
+                for(var i=20;i<30;i++){
+                    wmSum = wmSum + answers.models[i].attributes.Answer;
+                }
+                alcoholProduct = answers.models[30].attributes.Answer * answers.models[31].attributes.Answer
+
+                res.json({medication: medicationSum,
+                            diet: dietSum,
+                            physicalActivity: paSum,
+                            smoking: smokingSum,
+                            weightManagement: wmSum,
+                            alcohol: alcoholProduct});
+            })
+            .catch(function (err) {
+                res.status(500).json({error: true, data: {message: err.message}});
+            })
+    });
+
+router.route('/getResult/:userId')
+    .get(function (req, res) {
+        knex.from('answers').innerJoin('questions', 'answers.QuestionId', 'questions.QuestionId')
+            .where('UserId',req.params.userId)
+            .then(function(questionsAnswers) {
+                res.json(questionsAnswers);
+            })
+            .catch(function (err){
+                res.status(500).json({error: true, data: {message: err.message}});
+        })
+    });
 
   app.use('/api', router);
   app.listen(8080, function() {
