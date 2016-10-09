@@ -101,7 +101,7 @@ router.route('/login')
         res.json({error: true, data: {message: "Invalid user credentials"}});
       }else {
         var token = jwt.sign(user, JWTKEY, {
-          expiresIn: 60 //The token expries in 30 minutes
+          expiresIn: 1800 //The token expries in 30 minutes
         });
         res.json({error: false, date: {user: user.toJSON(), token: token}});
       }
