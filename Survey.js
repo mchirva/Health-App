@@ -62,14 +62,14 @@ var Answers = Bookshelf.Collection.extend({
 router.route('/getPatients')
 //Fecth all patients
 .get(function (req, res) {
-    knex.from('users')
-    .where('role','Patient')
-    .then(function (collection) {
-      res.json({error: false, data: collection});
-    })
-    .catch(function (err) {
-      res.status(500).json({error: true, data: {message: err.message}});
-    });
+        knex.from('users')
+            .where('role', 'Patient')
+            .then(function (collection) {
+                res.json({error: false, data: collection});
+            })
+            .catch(function (err) {
+                res.status(500).json({error: true, data: {message: err.message}});
+            });
   });
 
 router.route('/createUser')
@@ -114,7 +114,6 @@ router.route('/login')
 router.route('/saveResponse')
     .post(function (req, res) {
         var decoded = jwt.verify(req.body.token, JWTKEY);
-        console.log(decoded);
         if(decoded) {
             Answer.forge({
                 AnswerId: uuid.v1(),
