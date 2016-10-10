@@ -103,7 +103,7 @@ router.route('/login')
         var token = jwt.sign(user, JWTKEY, {
           expiresIn: 1800 //The token expries in 30 minutes
         });
-        res.json({error: false, date: {user: user.toJSON(), token: token}});
+        res.json({error: false, data: {user: user.toJSON(), token: token}});
       }
     })
     .catch(function (err) {
