@@ -144,22 +144,27 @@ router.route('/calculateScore/:userId')
                 var smokingSum = 0;
                 var wmSum = 0;
                 var alcoholProduct = 0;
-                for(var i=0;i<3;i++){
-                    medicationSum = medicationSum + answers.models[i].attributes.Answer;
+                var offset = 0;
+                if(answers.models[0].attributes.QuestionId == 1){
+                    offset = 3
+                    for(var i=0;i<3;i++){
+
+                        medicationSum = medicationSum + answers.models[i].attributes.Answer;
+                    }
                 }
-                for(var i=3;i<14;i++){
+                for(var i=offset;i<offset+11;i++){
                     dietSum = dietSum + answers.models[i].attributes.Answer;
                 }
-                for(var i=14;i<16;i++){
+                for(var i=offset+11;i<offset+13;i++){
                     paSum = paSum + answers.models[i].attributes.Answer;
                 }
-                for(var i=18;i<20;i++){
+                for(var i=offset+15;i<offset+17;i++){
                     smokingSum = smokingSum + answers.models[i].attributes.Answer;
                 }
-                for(var i=20;i<30;i++){
+                for(var i=offset+17;i<offset+27;i++){
                     wmSum = wmSum + answers.models[i].attributes.Answer;
                 }
-                alcoholProduct = answers.models[30].attributes.Answer * answers.models[31].attributes.Answer
+                alcoholProduct = answers.models[offset+27].attributes.Answer * answers.models[offset+28].attributes.Answer
 
                 res.json({medication: medicationSum,
                             diet: dietSum,
