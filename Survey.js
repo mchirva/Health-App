@@ -4,8 +4,8 @@ var knex = require('knex')({
     connection: {
         host     : 'localhost',
         user     : 'root',
-        password : 'bazzinga',
-        database : 'HealthApp',
+        password : '',
+        database : 'heathappdb',
         charset  : 'utf8'
   }
 });
@@ -134,9 +134,9 @@ router.route('/saveResponse')
 
 router.route('/calculateScore/:userId')
     .get(function (req, res) {
-        Answer.forge({userId: req.params.userId})
+        knex.from('answers')
+            .where('UserId',req.params.userId)
             .orderBy('questionId','ASC')
-            .fetchAll()
             .then(function (answers) {
                 var medicationSum = 0;
                 var dietSum = 0;
@@ -145,26 +145,27 @@ router.route('/calculateScore/:userId')
                 var wmSum = 0;
                 var alcoholProduct = 0;
                 var offset = 0;
-                if(answers.models[0].attributes.QuestionId == 1){
+                console.log(answers);
+                if(answers[0].QuestionId == 1){
+                    console.log('Entered');
                     offset = 3
                     for(var i=0;i<3;i++){
-
-                        medicationSum = medicationSum + answers.models[i].attributes.Answer;
+                        medicationSum = medicationSum + answers[i].Answer;
                     }
                 }
                 for(var i=offset;i<offset+11;i++){
-                    dietSum = dietSum + answers.models[i].attributes.Answer;
+                    dietSum = dietSum + answers[i].Answer;
                 }
                 for(var i=offset+11;i<offset+13;i++){
-                    paSum = paSum + answers.models[i].attributes.Answer;
+                    paSum = paSum + answers[i].Answer;
                 }
                 for(var i=offset+15;i<offset+17;i++){
-                    smokingSum = smokingSum + answers.models[i].attributes.Answer;
+                    smokingSum = smokingSum + answers[i].Answer;
                 }
                 for(var i=offset+17;i<offset+27;i++){
-                    wmSum = wmSum + answers.models[i].attributes.Answer;
+                    wmSum = wmSum + answers[i].Answer;
                 }
-                alcoholProduct = answers.models[offset+27].attributes.Answer * answers.models[offset+28].attributes.Answer
+                alcoholProduct = answers[offset+27].Answer * answers[offset+28].Answer
 
                 res.json({medication: medicationSum,
                             diet: dietSum,
