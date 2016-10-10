@@ -4,8 +4,8 @@ var knex = require('knex')({
     connection: {
         host     : 'localhost',
         user     : 'root',
-        password : '',
-        database : 'heathappdb',
+        password : 'bazzinga',
+        database : 'HealthApp',
         charset  : 'utf8'
   }
 });
