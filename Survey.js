@@ -187,13 +187,13 @@ router.route('/calculateScore/:userId')
                               weightManagement: wmSum,
                               alcohol: alcoholProduct});
         })
+        .catch(function (err) {
+            res.status(500).json({error: true, data: {message: err.message}});
+        })
         }else {
           res.json({error: true, data: {message: 'invalid token'}});
         }
 
-            .catch(function (err) {
-                res.status(500).json({error: true, data: {message: err.message}});
-            })
     });
 
 router.route('/getResult/:userId')
