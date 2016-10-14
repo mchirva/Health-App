@@ -223,7 +223,9 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Headers", "*");
+
+    res.setHeader('Access-Control-Expose-Headers','*');
 
     // Pass to next layer of middleware
     next();
