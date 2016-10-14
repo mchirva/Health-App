@@ -62,21 +62,23 @@ var Answers = Bookshelf.Collection.extend({
 router.route('/getPatients')
 //Fecth all patients
 .get(function (req, res) {
-    console.log(req.headers);
-  var decoded = jwt.verify(req.headers['token'], JWTKEY);
-  if(decoded){      
-        knex.from('users')
-            .where('role', 'Patient')
-            .then(function (collection) {
-                res.json({error: false, data: collection});
-            })
-            .catch(function (err) {
-                res.status(500).json({error: true, data: {message: err.message}});
-            });
-          }else {
-            res.json({error: true, data: {message: 'invalid token'}});
-          }
-  });
+    //console.log(req.headers);
+  //var decoded = jwt.verify(req.headers['token'], JWTKEY);
+  //if(decoded){      
+        // knex.from('users')
+        //     .where('role', 'Patient')
+        //     .then(function (collection) {
+        //         res.json({error: false, data: collection});
+        //     })
+        //     .catch(function (err) {
+        //         res.status(500).json({error: true, data: {message: err.message}});
+        //     });
+        //   }else {
+        //     res.json({error: true, data: {message: 'invalid token'}});
+        //   }
+  //});
+  res.json(req);
+});
 
 router.route('/createUser')
     .post(function (req, res) {
