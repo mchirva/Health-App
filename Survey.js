@@ -62,6 +62,8 @@ var Answers = Bookshelf.Collection.extend({
 router.route('/getPatients')
 //Fecth all patients
 .get(function (req, res) {
+  var decoded = jwt.verify(req.headers['token'], JWTKEY);
+  if(decoded){
         knex.from('users')
             .where('role', 'Patient')
             .then(function (collection) {
@@ -70,10 +72,15 @@ router.route('/getPatients')
             .catch(function (err) {
                 res.status(500).json({error: true, data: {message: err.message}});
             });
+          }else {
+            res.json({error: true, data: {message: 'invalid token'}});
+          }
   });
 
 router.route('/createUser')
     .post(function (req, res) {
+      var decoded = jwt.verify(req.body.token, JWTKEY);
+      if(decoded) {
         User.forge({
             id: uuid.v1(),
             name: req.body.name,
@@ -88,6 +95,10 @@ router.route('/createUser')
             .catch(function (err) {
                 res.status(500).json({error: true, data: {message: err.message}});
             });
+      }else {
+        res.json({error: true, data: {message: 'invalid token'}});
+      }
+
     });
 
 router.route('/login')
@@ -134,46 +145,52 @@ router.route('/saveResponse')
 
 router.route('/calculateScore/:userId')
     .get(function (req, res) {
-        knex.from('answers')
-            .where('UserId',req.params.userId)
-            .orderBy('questionId','ASC')
-            .then(function (answers) {
-                var medicationSum = 0;
-                var dietSum = 0;
-                var paSum = 0;
-                var smokingSum = 0;
-                var wmSum = 0;
-                var alcoholProduct = 0;
-                var offset = 0;
-                console.log(answers);
-                if(answers[0].QuestionId == 1){
-                    console.log('Entered');
-                    offset = 3
-                    for(var i=0;i<3;i++){
-                        medicationSum = medicationSum + answers[i].Answer;
-                    }
-                }
-                for(var i=offset;i<offset+11;i++){
-                    dietSum = dietSum + answers[i].Answer;
-                }
-                for(var i=offset+11;i<offset+13;i++){
-                    paSum = paSum + answers[i].Answer;
-                }
-                for(var i=offset+15;i<offset+17;i++){
-                    smokingSum = smokingSum + answers[i].Answer;
-                }
-                for(var i=offset+17;i<offset+27;i++){
-                    wmSum = wmSum + answers[i].Answer;
-                }
-                alcoholProduct = answers[offset+27].Answer * answers[offset+28].Answer
+        var decoded = jwt.verify(req.headers['token'], JWTKEY);
+        if(decoded) {
+          knex.from('answers')
+              .where('UserId',req.params.userId)
+              .orderBy('questionId','ASC')
+              .then(function (answers) {
+                  var medicationSum = 0;
+                  var dietSum = 0;
+                  var paSum = 0;
+                  var smokingSum = 0;
+                  var wmSum = 0;
+                  var alcoholProduct = 0;
+                  var offset = 0;
+                  console.log(answers);
+                  if(answers[0].QuestionId == 1){
+                      console.log('Entered');
+                      offset = 3
+                      for(var i=0;i<3;i++){
+                          medicationSum = medicationSum + answers[i].Answer;
+                      }
+                  }
+                  for(var i=offset;i<offset+11;i++){
+                      dietSum = dietSum + answers[i].Answer;
+                  }
+                  for(var i=offset+11;i<offset+13;i++){
+                      paSum = paSum + answers[i].Answer;
+                  }
+                  for(var i=offset+15;i<offset+17;i++){
+                      smokingSum = smokingSum + answers[i].Answer;
+                  }
+                  for(var i=offset+17;i<offset+27;i++){
+                      wmSum = wmSum + answers[i].Answer;
+                  }
+                  alcoholProduct = answers[offset+27].Answer * answers[offset+28].Answer
 
-                res.json({medication: medicationSum,
-                            diet: dietSum,
-                            physicalActivity: paSum,
-                            smoking: smokingSum,
-                            weightManagement: wmSum,
-                            alcohol: alcoholProduct});
-            })
+                  res.json({medication: medicationSum,
+                              diet: dietSum,
+                              physicalActivity: paSum,
+                              smoking: smokingSum,
+                              weightManagement: wmSum,
+                              alcohol: alcoholProduct});
+        })
+        }else {
+          res.json({error: true, data: {message: 'invalid token'}});
+        }
+
             .catch(function (err) {
                 res.status(500).json({error: true, data: {message: err.message}});
             })
@@ -181,6 +198,8 @@ router.route('/calculateScore/:userId')
 
 router.route('/getResult/:userId')
     .get(function (req, res) {
+      var decoded = jwt.verify(req.headers['token'], JWTKEY);
+      if(decoded) {
         knex.from('answers').innerJoin('questions', 'answers.QuestionId', 'questions.QuestionId')
             .where('UserId',req.params.userId)
             .then(function(questionsAnswers) {
@@ -189,6 +208,9 @@ router.route('/getResult/:userId')
             .catch(function (err){
                 res.status(500).json({error: true, data: {message: err.message}});
         })
+      }else {
+        res.json({error: true, data: {message: 'invalid token'}});
+      }
     });
 
 // Add headers
