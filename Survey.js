@@ -61,10 +61,9 @@ var Answers = Bookshelf.Collection.extend({
 
 router.route('/getPatients')
 //Fecth all patients
-.get(function (req, res) {
-    console.log(req.headers);
-  var decoded = jwt.verify(req.headers['token'], JWTKEY);
-  if(decoded){      
+    .post(function (req, res) {
+        var decoded = jwt.verify(req.body.token, JWTKEY);
+        if(decoded){
         knex.from('users')
             .where('role', 'Patient')
             .then(function (collection) {
@@ -145,8 +144,8 @@ router.route('/saveResponse')
     });
 
 router.route('/calculateScore/:userId')
-    .get(function (req, res) {
-        var decoded = jwt.verify(req.headers['token'], JWTKEY);
+    .post(function (req, res) {
+        var decoded = jwt.verify(req.body.token, JWTKEY);
         if(decoded) {
           knex.from('answers')
               .where('UserId',req.params.userId)
@@ -198,8 +197,8 @@ router.route('/calculateScore/:userId')
     });
 
 router.route('/getResult/:userId')
-    .get(function (req, res) {
-      var decoded = jwt.verify(req.headers['token'], JWTKEY);
+    .post(function (req, res) {
+      var decoded = jwt.verify(req.body.token, JWTKEY);
       if(decoded) {
         knex.from('answers').innerJoin('questions', 'answers.QuestionId', 'questions.QuestionId')
             .where('UserId',req.params.userId)
