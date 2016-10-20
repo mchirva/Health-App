@@ -10,14 +10,22 @@ var knex = require('knex')({
   }
 });
 
-var Bookshelf = require('bookshelf')(knex);
+// Twilio Credentials
+var accountSid = 'ACfeca013d7fa17c1219e9639ad20e52ed';
+var authToken = '8e06c49dca78a3ea4336150629661f8f';
 
+//require the Twilio module and create a REST client
+var client = require('twilio')(accountSid, authToken);
+
+var Bookshelf = require('bookshelf')(knex);
+var generator = require('generate-password');
 var lodash_ = require('lodash');
 var uuid = require('uuid');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var jwt    = require('jsonwebtoken');
+var shortid = require("shortid");
 var JWTKEY = 'FalconDecoder'; // Key for Json Web Token
 
 // application routing
@@ -35,6 +43,7 @@ var User = Bookshelf.Model.extend({
 var Question = Bookshelf.Model.extend({
   tableName: 'questions'
 });
+
 
 var Answer = Bookshelf.Model.extend({
   tableName: 'answers',
@@ -61,9 +70,15 @@ var Answers = Bookshelf.Collection.extend({
 
 router.route('/getPatients')
 //Fecth all patients
+<<<<<<< HEAD
 .post(function (req, res) {
   var decoded = jwt.verify(req.body.token, JWTKEY);
   if(decoded){
+=======
+    .post(function (req, res) {
+        var decoded = jwt.verify(req.body.token, JWTKEY);
+        if(decoded){
+>>>>>>> bb0ca692f1a996920592ab0808257d045c44c40c
         knex.from('users')
             .where('role', 'Patient')
             .then(function (collection) {
@@ -213,6 +228,38 @@ router.route('/getResult/:userId')
       }
     });
 
+router.route('/registerUser')
+    .post(function (req, res) {
+        var password = generator.generate({
+            length: 8,
+            numbers: true,
+            symbols: true,
+            uppercase: true
+        });
+        var username = shortid.generate();
+        User.forge({
+            id: uuid.v1(),
+            name: req.body.name,
+            gender: req.body.gender,
+            phone: req.body.phone,
+            username: username,
+            password: password
+        }).save(null, {method: 'insert'})
+            .then(function (user) {
+                client.messages.create({
+                    to: req.body.phone,
+                    from: '+19842046452',
+                    body: 'Your UserId is:'+username+' and password is:'+password,
+                }, function (err, message) {
+                    console.log(message.sid);
+                });
+                res.json({error: false, data: {id: user.get('id')}});
+            })
+            .catch(function (err) {
+                res.status(500).json({error: true, data: {message: err.message}});
+            });
+    });
+
 // Add headers
 app.use(function (req, res, next) {
 
@@ -225,8 +272,14 @@ app.use(function (req, res, next) {
     // Request headers you wish to allow
     res.setHeader("Access-Control-Allow-Headers", "*");
 
+    res.setHeader('Access-Control-Expose-Headers','*');
+
     // Pass to next layer of middleware
     next();
+});
+
+app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname + '/index.html'));
 });
 
 app.use('/api', router);
