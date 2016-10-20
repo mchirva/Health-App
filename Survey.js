@@ -70,15 +70,9 @@ var Answers = Bookshelf.Collection.extend({
 
 router.route('/getPatients')
 //Fecth all patients
-<<<<<<< HEAD
 .post(function (req, res) {
   var decoded = jwt.verify(req.body.token, JWTKEY);
   if(decoded){
-=======
-    .post(function (req, res) {
-        var decoded = jwt.verify(req.body.token, JWTKEY);
-        if(decoded){
->>>>>>> bb0ca692f1a996920592ab0808257d045c44c40c
         knex.from('users')
             .where('role', 'Patient')
             .then(function (collection) {
