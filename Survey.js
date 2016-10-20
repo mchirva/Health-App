@@ -273,7 +273,7 @@ app.use(function (req, res, next) {
 });
 
 app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname + '/index.html'));
+  res.sendFile(path.join(__dirname + '/ClinicApp/Login.html'));
 });
 
 app.use('/api', router);
